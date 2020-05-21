@@ -7,7 +7,7 @@ class Agent:
 
     FREE = 0
     OCCUPIED = 1
-    RISE = 5
+    RISE = 0
 
     def __init__(self, x, y, angle):
         """ Initializes the agent """
@@ -15,8 +15,8 @@ class Agent:
         self.y = y
         self.z = 0
         self.angle = angle
-        self.width = 10
-        self.height = 10
+        self.width = 1
+        self.height = 1
         self.color = 'blue'
 
     def move(self, pose_info):
@@ -25,14 +25,18 @@ class Agent:
         self.y = pose_info[1]
         self.angle = pose_info[2]
 
-    def vtk_render(self):
-        """ Returns a vtk representation of the Agent """
+    def vtk_box_render(self):
+        """ Returns a vtk box representation of the Agent """
         return vtk.Box((self.x, self.y, self.z), self.width, self.height, self.RISE, size=(), c=self.color, alpha=1)
+
+    def vtk_point_render(self):
+        """ Returns a vtk circle representation of the Agent """
+        return vtk.Circle(pos=(self.x, self.y, self.z), r=2, fill=True, c='blue')
 
     def get_endpoint(self, angle, s_range, pos, robot_angle):
         """ Gets the endpoint of the sensor """
-        end_x = int(pos[0] + s_range * math.cos((angle + robot_angle) % (2 * math.pi)))
-        end_y = int(pos[1] + s_range * math.sin((angle + robot_angle) % (2 * math.pi)))
+        end_x = pos[0] + s_range * math.cos(angle + robot_angle)
+        end_y = pos[1] + s_range * math.sin(angle + robot_angle)
         return (end_x, end_y)
 
     def hitting_grids(self, pixel_map, grid_size, grid_width, width, height, corners):
@@ -47,15 +51,19 @@ class Agent:
             grid_row = math.floor((row  + height/2) / grid_size)
             grid_col = math.floor((col + width/2) / grid_size)
             index = grid_width * grid_row + grid_col
-
             # map an x,y position to an index in the vtk grid list
-            if pixel_map[row][col] == self.FREE:
-                free.add(index)
-            elif pixel_map[row][col] == self.OCCUPIED:
-                if index in free:
-                    free.remove(index)
-                occupied.add(index)
-                break
+            free.add(index)
+
+        # add the last index as occupied
+        corner = corners[-1]
+        row = int(corner[1])
+        col = int(corner[0])
+        grid_row = math.floor((row  + height/2) / grid_size)
+        grid_col = math.floor((col + width/2) / grid_size)
+        index = grid_width * grid_row + grid_col
+
+        free.remove(index)
+        occupied.add(index)
         return (occupied, free)
 
     def length_collide(self, pixel_map, corners):

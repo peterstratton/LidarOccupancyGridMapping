@@ -5,7 +5,6 @@ import Agent
 from Agent import *
 import Rectangle
 from Rectangle import *
-import matplotlib.pyplot as plt
 
 # world dimensions
 WIDTH = 40

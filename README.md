@@ -12,4 +12,6 @@ Virtualenv: python3 -m pip install --user virtualenv
 
 Next, run the script 'easy_install.sh' to start the virtual environemnt and install the dependancies. 
 
-./easy_install.sh
+Installation script: ./easy_install.sh
+
+After that, use the command 'python3 main.py' to run the simulation.

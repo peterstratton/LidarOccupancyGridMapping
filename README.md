@@ -1,5 +1,7 @@
 # LidarOccupancyGridMapping
-Occupancy Grid Mapping simulation using given lidar data.
+-------------------------------------------------------------------------------------------------------------------------------
+Occupancy Grid Mapping simulation using given lidar data and VTKPlotter for display.
+-------------------------------------------------------------------------------------------------------------------------------
 
 To run, first install python3, pip, and virtualenv (runs vitual environments).
 

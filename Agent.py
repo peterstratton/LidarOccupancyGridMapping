@@ -31,40 +31,13 @@ class Agent:
 
     def vtk_point_render(self):
         """ Returns a vtk circle representation of the Agent """
-        return vtk.Circle(pos=(self.x, self.y, self.z), r=2, fill=True, c='blue')
+        return vtk.Circle(pos=(self.x, self.y, self.z), r=0.2, fill=True, c='blue')
 
     def get_endpoint(self, angle, s_range, pos, robot_angle):
         """ Gets the endpoint of the sensor """
-        end_x = pos[0] + s_range * math.cos(angle + robot_angle)
-        end_y = pos[1] + s_range * math.sin(angle + robot_angle)
+        end_x = pos[0] + s_range * np.cos(angle + robot_angle)
+        end_y = pos[1] + s_range * np.sin(angle + robot_angle)
         return (end_x, end_y)
-
-    def hitting_grids(self, pixel_map, grid_size, grid_width, width, height, corners):
-        """ Determines which grid cells are free or occupied based on the sensor measurement """
-        occupied = set()
-        free = set()
-
-        # for each "corner" of the line
-        for corner in corners:
-            row = int(corner[1])
-            col = int(corner[0])
-            grid_row = math.floor((row  + height/2) / grid_size)
-            grid_col = math.floor((col + width/2) / grid_size)
-            index = grid_width * grid_row + grid_col
-            # map an x,y position to an index in the vtk grid list
-            free.add(index)
-
-        # add the last index as occupied
-        corner = corners[-1]
-        row = int(corner[1])
-        col = int(corner[0])
-        grid_row = math.floor((row  + height/2) / grid_size)
-        grid_col = math.floor((col + width/2) / grid_size)
-        index = grid_width * grid_row + grid_col
-
-        free.remove(index)
-        occupied.add(index)
-        return (occupied, free)
 
     def length_collide(self, pixel_map, corners):
         """ Returns a new endpoint for the sensor if it hits an occupied pixel """
@@ -89,19 +62,25 @@ class Agent:
 
         # handle 0 and negative slopes
         if dx == 0:
+            if dy < 0:
+                temp = start
+                start = end
+                end = temp
             x = start[0]
             y = start[1]
             while y <= end[1]:
                 corners.append((x, y))
                 y = y + scale
-            corners.append((x, y))
         elif dy == 0:
+            if dx < 0:
+                temp = start
+                start = end
+                end = temp
             x = start[0]
             y = start[1]
             while x <= end[0]:
                 corners.append((x, y))
                 x = x + scale
-            corners.append((x, y))
         else:
             # set initial slope
             m = dy/dx
@@ -125,7 +104,6 @@ class Agent:
                         while x <= end[0]:
                             values.append(x)
                             x = x + scale
-                        values.append(end[0])
 
                         # set if y or x is incremeneted
                         y_inc = True
@@ -145,7 +123,6 @@ class Agent:
                         while x >= end[0]:
                             values.append(x)
                             x = x - scale
-                        values.append(end[0])
 
                         # set if y or x is incremeneted
                         y_inc = True
@@ -167,7 +144,6 @@ class Agent:
                         while y <= end[1]:
                             values.append(y)
                             y = y + scale
-                        values.append(end[1])
 
                         # set if y or x is incremeneted
                         y_inc = False
@@ -187,7 +163,6 @@ class Agent:
                         while y >= end[1]:
                             values.append(y)
                             y = y - scale
-                        values.append(end[1])
 
                         # set if y or x is incremeneted
                         y_inc = False
@@ -210,7 +185,6 @@ class Agent:
                         while x <= end[0]:
                             values.append(x)
                             x = x + scale
-                        values.append(end[0])
 
                         # set if y or x is incremeneted
                         y_inc = True
@@ -230,7 +204,6 @@ class Agent:
                         while x >= end[0]:
                             values.append(x)
                             x = x - scale
-                        values.append(end[0])
 
                         # set if y or x is incremeneted
                         y_inc = True
@@ -252,7 +225,6 @@ class Agent:
                         while y >= end[1]:
                             values.append(y)
                             y = y - scale
-                        values.append(end[1])
 
                         # set if y or x is incremeneted
                         y_inc = False
@@ -272,7 +244,6 @@ class Agent:
                         while y <= end[1]:
                             values.append(y)
                             y = y + scale
-                        values.append(end[1])
 
                         # set if y or x is incremeneted
                         y_inc = False
@@ -301,5 +272,4 @@ class Agent:
                     else:
                         i = i + inc
                         error = error + (scale * m) - error_inc
-
         return corners

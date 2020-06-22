@@ -31,7 +31,7 @@ class Agent:
 
     def vtk_point_render(self):
         """ Returns a vtk circle representation of the Agent """
-        return vtk.Circle(pos=(self.x, self.y, self.z), r=0.2, fill=True, c='blue')
+        return vtk.Circle(pos=(self.x, self.y, self.z), r=0.2, c='blue')
 
     def get_endpoint(self, angle, s_range, pos, robot_angle):
         """ Gets the endpoint of the sensor """
@@ -50,226 +50,51 @@ class Agent:
                 return (col, row)
         return (corners[len(corners) - 1])
 
+    def bresenham(self, start, end):
+        """ returns the shortest path through the pixel grid that connects the start and end points """
+        points = []
+        i_ind = 0
+        j_ind = 1
+        inc = 1
+        swap = False
+        reverse = False
 
-    def bresenham(self, map, start, end, scale):
-        """ Determines the shortest path of pixels of a line in increments determined by the scale """
-        """ Scale of 1 is recommend lol """
+        # determine whether to iterate over x or y
+        if abs(start[0] - end[0]) < abs(start[1] - end[1]):
+            i_ind = 1
+            j_ind = 0
+            swap = True
 
-        corners = []
+        # determine the start and end points
+        if start[i_ind] > end[i_ind]:
+            temp = end
+            end = start
+            start = temp
+            reverse = True
 
-        dx = end[0] - start[0]
-        dy = end[1] - start[1]
+        # calc deltas
+        d_j = end[j_ind] - start[j_ind]
+        d_i = end[i_ind] - start[i_ind]
 
-        # handle 0 and negative slopes
-        if dx == 0:
-            if dy < 0:
-                temp = start
-                start = end
-                end = temp
-            x = start[0]
-            y = start[1]
-            while y <= end[1]:
-                corners.append((x, y))
-                y = y + scale
-        elif dy == 0:
-            if dx < 0:
-                temp = start
-                start = end
-                end = temp
-            x = start[0]
-            y = start[1]
-            while x <= end[0]:
-                corners.append((x, y))
-                x = x + scale
-        else:
-            # set initial slope
-            m = dy/dx
+        # determine if j increases or decreases
+        if start[j_ind] > end[j_ind]:
+            inc = -1
+            d_j = abs(d_j)
 
-            # determine increment
-            inc = 0
-            y_inc = None
-            if m > 0:
-                if m < 1:
-                    # Quadrants 1 and 5
-                    if dx > 0:
-                        # increment y positively
-                        inc = scale
-                        i = start[1]
-                        error_inc = inc
+        m = d_j / d_i # slope
 
-                        # get positive x values
-                        x = start[0]
-                        values = [x]
-                        x = x + scale
-                        while x <= end[0]:
-                            values.append(x)
-                            x = x + scale
-
-                        # set if y or x is incremeneted
-                        y_inc = True
-
-                        # set adjusted slope
-                        m = dy/dx
-                    else:
-                        # increment y negatively
-                        inc = -scale
-                        i = start[1]
-                        error_inc = -inc
-
-                        # get negative x values
-                        x = start[0]
-                        values = [x]
-                        x = x - scale
-                        while x >= end[0]:
-                            values.append(x)
-                            x = x - scale
-
-                        # set if y or x is incremeneted
-                        y_inc = True
-
-                        # set adjusted slope
-                        m = dy/dx
-                else:
-                    # Quadrants 2 and 6
-                    if dy > 0:
-                        # increment x positively
-                        inc = scale
-                        i = start[0]
-                        error_inc = inc
-
-                        # get positive y values
-                        y = start[1]
-                        values = [y]
-                        y = y + scale
-                        while y <= end[1]:
-                            values.append(y)
-                            y = y + scale
-
-                        # set if y or x is incremeneted
-                        y_inc = False
-
-                        # set adjusted slope
-                        m = dx/dy
-                    else:
-                        # increment x negatively
-                        inc = -scale
-                        i = start[0]
-                        error_inc = -inc
-
-                        # get negative y values
-                        y = start[1]
-                        values = [y]
-                        y = y - scale
-                        while y >= end[1]:
-                            values.append(y)
-                            y = y - scale
-
-                        # set if y or x is incremeneted
-                        y_inc = False
-
-                        # set adjusted slope
-                        m = dx/dy
+        j = start[j_ind]
+        e = 0
+        for i in range(start[i_ind], end[i_ind] + 1):
+            if swap:
+                points.append((j, i))
             else:
-                if m > -1:
-                    # Quadrants 8 and 4
-                    if dx > 0:
-                        # increment y negatively
-                        inc = -scale
-                        i = start[1]
-                        error_inc = -inc
-
-                        # get positive x values
-                        x = start[0]
-                        values = [x]
-                        x = x + scale
-                        while x <= end[0]:
-                            values.append(x)
-                            x = x + scale
-
-                        # set if y or x is incremeneted
-                        y_inc = True
-
-                        # set adjusted slope
-                        m = dy/dx
-                    else:
-                        # increment y positively
-                        inc = scale
-                        i = start[1]
-                        error_inc = -inc
-
-                        # get negative x values
-                        x = start[0]
-                        values = [x]
-                        x = x - scale
-                        while x >= end[0]:
-                            values.append(x)
-                            x = x - scale
-
-                        # set if y or x is incremeneted
-                        y_inc = True
-
-                        # set adjusted slope
-                        m = dy/dx
-                else:
-                    # Quadrants 7 and 3
-                    if dx > 0:
-                        # increment x positively
-                        inc = scale
-                        i = start[0]
-                        error_inc = -inc
-
-                        # get negative y values
-                        y = start[1]
-                        values = [y]
-                        y = y - scale
-                        while y >= end[1]:
-                            values.append(y)
-                            y = y - scale
-
-                        # set if y or x is incremeneted
-                        y_inc = False
-
-                        # set adjusted slope
-                        m = dx/dy
-                    else:
-                        # increment x negatively
-                        inc = -scale
-                        i = start[0]
-                        error_inc = inc
-
-                        # get positive y values
-                        y = start[1]
-                        values = [y]
-                        y = y + scale
-                        while y <= end[1]:
-                            values.append(y)
-                            y = y + scale
-
-                        # set if y or x is incremeneted
-                        y_inc = False
-
-                        # set adjusted slope
-                        m = dx/dy
-
-            error = 0
-            for v in values:
-                # determine how to set values into the returned list
-                if y_inc:
-                    corners.append((v, i))
-                else:
-                    corners.append((i, v))
-
-                # preform bresenham algorithm based on the slope
-                if(m > 0):
-                    if(error + m < 0.5):
-                        error = error + (scale * m)
-                    else:
-                        i = i + inc
-                        error = error + (scale * m) - error_inc
-                else:
-                    if(error + m > 0.5):
-                        error = error + (scale * m)
-                    else:
-                        i = i + inc
-                        error = error + (scale * m) - error_inc
-        return corners
+                points.append((i, j))
+            if 2 * (e + d_j) < d_i:
+                e += d_j
+            else:
+                j += inc
+                e += (d_j - d_i)
+        if reverse:
+            points.reverse()
+        return points

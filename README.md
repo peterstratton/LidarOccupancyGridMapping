@@ -12,7 +12,7 @@ Pip: python3 -m pip install --user --upgrade pip
 
 Virtualenv: python3 -m pip install --user virtualenv
 
-Next, run the script 'easy_install.sh' to start the virtual environemnt and install the dependancies. 
+Next, run the script 'easy_install.sh' to start the virtual environement and install the dependancies. 
 
 Installation script: ./easy_install.sh
 

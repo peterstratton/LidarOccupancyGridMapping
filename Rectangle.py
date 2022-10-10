@@ -1,5 +1,6 @@
 import numpy as np
-import vtkplotter as vtk
+import vedo as vtk_p
+
 
 class Rectangle:
     RISE = 0
@@ -18,7 +19,7 @@ class Rectangle:
         return np.array(corners).astype(int)
 
     def vtk_render(self, color, dotted=False, alpha=1, z_index=0):
-        return vtk.Box((self.x, self.y, 0), self.width, self.height, self.RISE+z_index, size=(), c=color, alpha=alpha)
+        return vtk_p.Box((self.x, self.y, 0), self.width, self.height, self.RISE+z_index, size=(), c=color, alpha=alpha)
 
     def numpy_render(self, grid):
         for y in range(int(self.y - self.height / 2), int(self.y + self.height / 2 + 1)):

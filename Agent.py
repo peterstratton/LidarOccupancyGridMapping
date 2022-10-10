@@ -1,6 +1,7 @@
 import numpy as np
-import vtkplotter as vtk
+import vedo as vtk_p
 import math
+
 
 class Agent:
     """ Class Agent acts as the robot in the environment. It preforms movement and sensing. """
@@ -27,11 +28,12 @@ class Agent:
 
     def vtk_box_render(self):
         """ Returns a vtk box representation of the Agent """
-        return vtk.Box((self.x, self.y, self.z), self.width, self.height, self.RISE, size=(), c=self.color, alpha=1)
+        return vtk_p.Box((self.x, self.y, self.z), self.width, self.height,
+                         self.RISE, size=(), c=self.color, alpha=1)
 
     def vtk_point_render(self):
         """ Returns a vtk circle representation of the Agent """
-        return vtk.Circle(pos=(self.x, self.y, self.z), r=0.2, c='blue')
+        return vtk_p.Circle(pos=(self.x, self.y, self.z), r=0.2, c='blue')
 
     def get_endpoint(self, angle, s_range, pos, robot_angle):
         """ Gets the endpoint of the sensor """
@@ -81,7 +83,7 @@ class Agent:
             inc = -1
             d_j = abs(d_j)
 
-        m = d_j / d_i # slope
+        m = d_j / d_i  # slope
 
         j = start[j_ind]
         e = 0

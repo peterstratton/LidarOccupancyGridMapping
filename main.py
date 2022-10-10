@@ -1,5 +1,5 @@
 import numpy as np
-import vtkplotter as vtk
+import vedo as vtk_p
 import math
 import Agent
 from Agent import *
@@ -18,14 +18,16 @@ RISE = 0
 GRID_SIZE = 0.2
 EXTEND_AREA = 1
 
+
 def inverse_sensor_model(occupied):
     if occupied:
         return math.log(OCCUPIED_CONFIDENCE / (1 - OCCUPIED_CONFIDENCE))
     else:
         return math.log(FREE_CONFIDENCE / (1 - FREE_CONFIDENCE))
 
+
 def plot(xs, ys):
-    colors = (0,0,0)
+    colors = (0, 0, 0)
     area = np.pi*3
 
     # Plot
@@ -35,16 +37,22 @@ def plot(xs, ys):
     plt.ylabel('y')
     plt.show()
 
+
 def main():
+    plot = vtk_p.Plotter(interactive=1)
+
     # get data
     angles = np.load('data/angles.npy')
     poses = np.load('data/poses.npy')
     ranges = np.load('data/ranges.npy')
 
     # Calculate world coordinates and dimensions
-    robot_orientation = np.array([[poses[i,-1] for _ in range(angles.shape[1])] for i in range(poses.shape[0])])
-    robot_coordinate_x = np.array([[poses[i,0] for _ in range(angles.shape[1])] for i in range(poses.shape[0])])
-    robot_coordinate_y = np.array([[poses[i,1] for _ in range(angles.shape[1])] for i in range(poses.shape[0])])
+    robot_orientation = np.array(
+        [[poses[i, -1] for _ in range(angles.shape[1])] for i in range(poses.shape[0])])
+    robot_coordinate_x = np.array(
+        [[poses[i, 0] for _ in range(angles.shape[1])] for i in range(poses.shape[0])])
+    robot_coordinate_y = np.array(
+        [[poses[i, 1] for _ in range(angles.shape[1])] for i in range(poses.shape[0])])
 
     ox = np.cos(angles + robot_orientation) * ranges + robot_coordinate_x
     oy = np.sin(angles + robot_orientation) * ranges + robot_coordinate_y
@@ -62,11 +70,11 @@ def main():
     num_grid_cells = grid_width * grid_height
 
     # create world
-    world = vtk.Box([(WIDTH)/2+minx, (HEIGHT)/2+miny, 0], WIDTH, HEIGHT, 0).wireframe()
+    world = vtk_p.Box([(WIDTH)/2+minx, (HEIGHT)/2+miny, 0],
+                      WIDTH, HEIGHT, 0).wireframe()
 
     # initialize log odds and grid maps
     log_odd_map = np.zeros(num_grid_cells)
-    pixel_map = np.zeros((HEIGHT, WIDTH))
 
     # initialize vtk grid objects
     grid_map = []
@@ -76,7 +84,8 @@ def main():
             x = i * GRID_SIZE + minx
             y = j * GRID_SIZE + miny
             index += 1
-            grid_map.append(vtk.Box((x, y, 0), GRID_SIZE, GRID_SIZE, RISE, size=(), c='black', alpha=0.5))
+            grid_map.append(vtk_p.Box((x, y, 0), GRID_SIZE,
+                            GRID_SIZE, RISE, size=(), c='black', alpha=0.5))
 
     # initialize agent object
     robot = Agent(0, 0, 0)
@@ -88,7 +97,8 @@ def main():
 
     # for every movement, preform a sense and update length of the sensor
     for pose in poses:
-        path.append(vtk.Line((robot.x, robot.y, 0), (pose[0], pose[1], 0), c='black', lw=2))
+        path.append(vtk_p.Line((robot.x, robot.y, 0),
+                    (pose[0], pose[1], 0), c='black', lw=2))
         robot.move(pose)
 
         s_index = 0
@@ -98,7 +108,8 @@ def main():
             pixels = None
             if not math.isnan(s_range * math.cos(angle + robot.angle)):
                 # get sensor endpoint
-                end_x, end_y = robot.get_endpoint(angle, s_range, (robot.x, robot.y), robot.angle)
+                end_x, end_y = robot.get_endpoint(
+                    angle, s_range, (robot.x, robot.y), robot.angle)
                 endpoint = (end_x, end_y, RISE)
                 end_x = int(round((end_x - minx) / GRID_SIZE))
                 end_y = int(round((end_y - miny) / GRID_SIZE))
@@ -112,11 +123,12 @@ def main():
                 ys.append(end_y)
 
                 # get occupied pixels
-                pixels = robot.bresenham(pixel_map, (start_x, start_y), (end_x, end_y), 1)
+                pixels = robot.bresenham((start_x, start_y), (end_x, end_y))
 
                 # display every fifth sensor
                 if s_index % 5 == 0:
-                    sensors.append(vtk.Line((robot.x, robot.y, RISE), endpoint, c='red', lw=0.5))
+                    sensors.append(
+                        vtk_p.Line((robot.x, robot.y, RISE), endpoint, c='red', lw=0.5))
                 s_index = s_index + 1
 
                 # update log odd for free cells
@@ -126,16 +138,25 @@ def main():
                     grid_map[idx].alpha(1 - 1/(math.e ** log_odd_map[idx] + 1))
 
                 # update log odds for occupied cells
-                idx = int(pixels[len(pixels) - 1][1] * grid_width + pixels[len(pixels) - 1][0])
+                idx = int(pixels[len(pixels) - 1][1]
+                          * grid_width + pixels[len(pixels) - 1][0])
                 log_odd_map[idx] += inverse_sensor_model(True)
                 grid_map[idx].alpha(1 - 1/(math.e ** log_odd_map[idx] + 1))
 
+        # init plotter
+        if index == 0:
+            plot.show(world, robot.vtk_point_render(),
+                      path, sensors, grid_map, interactive=True)
+
         # render the world every 50 time steps
-        if index % 50 == 0:
+        if index % 100 == 0:
             print(index)
-            vtk.show(world, robot.vtk_point_render(), path, sensors, grid_map, axes=1, bg="white", viewup="y", interactive=0)
+            plot.remove(plot.actors)
+            plot.add(world, robot.vtk_point_render(), path, sensors, grid_map)
+
         index = index + 1
     plot(xs, ys)
+
 
 if __name__ == "__main__":
     main()

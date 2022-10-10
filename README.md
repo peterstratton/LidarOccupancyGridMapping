@@ -34,8 +34,19 @@ Next, run this command to start the virtual environement and install the dependa
 ./easy_install.sh
 ```
 
+## Run
+
+To run the code, first run this command to activate the virtual environment that was installed:
+```
+source env/bin/activate
+```
 After that, execute this command to run the simulation:
 ```
 python main.py
 ```
 The program will first show a window with the robot and lidar scan from the first timestep. After clicking 'x' to close that initial window, the rest of the scans will render automatically. 
+
+When you're done running the code, run this command to deactivate the virtual environment:
+```
+deactivate
+```

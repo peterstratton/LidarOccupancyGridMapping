@@ -7,14 +7,14 @@ Author: Peter Stratton
 
 Emails: pstratt@umich.edu, pstratto@ucsd.edu
 
-<img src="https://github.com/ExistentialRobotics/MARL-Coverage/blob/main/BSA.gif" width="450">
+<img src="https://github.com/peterstratton/LidarOccupancyGridMapping/blob/master/Lidar_gif.gif" width="450">
 
 ## Installation
 
 First, install python executing this in a terminal:
 ```
 sudo apt-get update
-sudo apt-get install python3.6
+sudo apt-get install python
 ```
 
 Next, install pip by running:
@@ -38,3 +38,4 @@ After that, execute this command to run the simulation:
 ```
 python main.py
 ```
+The program will first show a window with the robot and lidar scan from the first timestep. After clicking 'x' to close that initial window, the rest of the scans will render automatically. 

@@ -1,19 +1,40 @@
 # LidarOccupancyGridMapping
 -------------------------------------------------------------------------------------------------------------------------------
-Occupancy Grid Mapping simulation using given lidar data and VTKPlotter for display.
+Occupancy Grid Mapping simulation using lidar and odometry data and VTKPlotter for display.
 -------------------------------------------------------------------------------------------------------------------------------
 
-To run, first install python3, pip, and virtualenv (runs vitual environments).
+Author: Peter Stratton 
 
-Python3: sudo apt-get update
-         sudo apt-get install python3.6
+Emails: pstratt@umich.edu, pstratto@ucsd.edu
 
-Pip: python3 -m pip install --user --upgrade pip
+<img src="https://github.com/ExistentialRobotics/MARL-Coverage/blob/main/BSA.gif" width="450">
 
-Virtualenv: python3 -m pip install --user virtualenv
+## Installation
 
-Next, run the script 'easy_install.sh' to start the virtual environement and install the dependancies. 
+First, install python executing this in a terminal:
+```
+sudo apt-get update
+sudo apt-get install python3.6
+```
 
-Installation script: ./easy_install.sh
+Next, install pip by running:
+```
+sudo apt install python3-pip
+```
 
-After that, use the command 'python3 main.py' to run the simulation.
+We want to use a virtual environment to isolate the required packages for 
+the repo, so use this command to install venv, a package used to create and
+manage virtual environments:
+```
+pip install virtualenv
+```
+
+Next, run this command to start the virtual environement and install the dependancies:
+```
+./easy_install.sh
+```
+
+After that, execute this command to run the simulation:
+```
+python main.py
+```
